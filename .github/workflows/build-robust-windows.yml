@@ -27,13 +27,11 @@ jobs:
             make
 
       - name: Checkout robust
-        env:
-          ROBUST_REF: ${{ inputs.robust_ref }}
-        run: |
-          set -euo pipefail
-          git clone --depth 1 --branch "$ROBUST_REF" https://github.com/bigattichouse/robust.git robust
-          cd robust
-          git rev-parse HEAD
+        uses: actions/checkout@v4
+        with:
+          repository: bigattichouse/robust
+          ref: ${{ inputs.robust_ref }}
+          path: robust
 
       - name: Build taguchi (skip morris/fork on Windows)
         working-directory: robust
@@ -42,8 +40,7 @@ jobs:
           make common taguchi
           test -f build/taguchi.dll
           test -f build/bin/taguchi.exe
-          file build/taguchi.dll
-          file build/bin/taguchi.exe
+          ls -la build/taguchi.dll build/bin/taguchi.exe
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
