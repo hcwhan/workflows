@@ -1,0 +1,55 @@
+name: Build robust (Windows)
+
+on:
+  workflow_dispatch:
+    inputs:
+      robust_ref:
+        description: robust git ref (branch/tag/sha)
+        required: false
+        default: main
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-toolchain
+            make
+
+      - name: Checkout robust
+        env:
+          ROBUST_REF: ${{ inputs.robust_ref }}
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch "$ROBUST_REF" https://github.com/bigattichouse/robust.git robust
+          cd robust
+          git rev-parse HEAD
+
+      - name: Build taguchi (skip morris/fork on Windows)
+        working-directory: robust
+        run: |
+          set -euo pipefail
+          make common taguchi
+          test -f build/taguchi.dll
+          test -f build/bin/taguchi.exe
+          file build/taguchi.dll
+          file build/bin/taguchi.exe
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: robust-windows-build
+          path: |
+            robust/build/taguchi.dll
+            robust/build/bin/taguchi.exe
+          if-no-files-found: error
