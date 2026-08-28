@@ -33,13 +33,23 @@ jobs:
           ref: ${{ inputs.robust_ref }}
           path: robust
 
-      - name: Build taguchi (skip morris/fork on Windows)
+      - name: Build taguchi (skip morris/fork/runner on Windows)
         working-directory: robust
         run: |
           set -euo pipefail
-          make common taguchi
+          # runner.c uses fork/exec (sys/wait.h) — not available on Windows.
+          # taguchi CLI only needs csv/json/space from common, not doe_run.
+          mapfile -t COMMON_SRC < <(find core/src -name '*.c' ! -name 'runner.c' | sort)
+          COMMON_OBJ=()
+          for src in "${COMMON_SRC[@]}"; do
+            base=$(basename "$src" .c)
+            COMMON_OBJ+=("build/common/${base}.o")
+          done
+          make build/taguchi.dll "COMMON_SRC=${COMMON_SRC[*]}" "COMMON_OBJ=${COMMON_OBJ[*]}"
+          make build/bin/taguchi.exe "COMMON_SRC=${COMMON_SRC[*]}" "COMMON_OBJ=${COMMON_OBJ[*]}"
           test -f build/taguchi.dll
           test -f build/bin/taguchi.exe
+          ./build/bin/taguchi.exe list-arrays --json | head -c 200
           ls -la build/taguchi.dll build/bin/taguchi.exe
 
       - name: Upload artifacts
