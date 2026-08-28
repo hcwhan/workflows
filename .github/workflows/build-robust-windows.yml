@@ -57,9 +57,9 @@ jobs:
           make build/taguchi.dll "COMMON_SRC=${COMMON_SRC[*]}" "COMMON_OBJ=${COMMON_OBJ[*]}"
           make build/bin/taguchi "COMMON_SRC=${COMMON_SRC[*]}" "COMMON_OBJ=${COMMON_OBJ[*]}"
           test -f build/taguchi.dll
-          test -f build/bin/taguchi.exe || test -f build/bin/taguchi
+          test -f build/bin/taguchi.exe
           ./build/bin/taguchi list-arrays --json | head -c 200
-          ls -la build/taguchi.dll build/bin/taguchi*
+          ls -la build/taguchi.dll build/bin/taguchi.exe
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -68,5 +68,4 @@ jobs:
           path: |
             robust/build/taguchi.dll
             robust/build/bin/taguchi.exe
-            robust/build/bin/taguchi
           if-no-files-found: error
