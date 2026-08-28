@@ -26,12 +26,21 @@ jobs:
             mingw-w64-ucrt-x86_64-toolchain
             make
 
+      - name: Checkout workflows repo (patch script)
+        uses: actions/checkout@v4
+        with:
+          path: workflows
+
       - name: Checkout robust
         uses: actions/checkout@v4
         with:
           repository: bigattichouse/robust
           ref: ${{ inputs.robust_ref }}
           path: robust
+
+      - name: Patch taguchi CLI for Windows
+        run: python ../workflows/scripts/patch_taguchi_windows.py optimize/taguchi/src/cli/main.c
+        working-directory: robust
 
       - name: Build taguchi (skip morris/fork/runner on Windows)
         working-directory: robust
