@@ -16,7 +16,7 @@ INCLUDE_NEW = """#ifndef _WIN32
 
 RUN_GUARD = """    // Execute each run as a separate process
     printf("Executing %zu experiment runs using '%s'...\\n", count, script);
-    
+
     for (size_t i = 0; i < count; i++) {"""
 
 RUN_GUARD_NEW = """    // Execute each run as a separate process
@@ -32,22 +32,22 @@ RUN_GUARD_NEW = """    // Execute each run as a separate process
 
 
 RUN_END_OLD = """    }
-    
+
     // Cleanup
     taguchi_free_runs(runs, count);
     taguchi_free_definition(def);
-    
+
     printf("All experiment runs completed.\\n");
     return 0;
 }"""
 
 RUN_END_NEW = """    }
 #endif
-    
+
     // Cleanup
     taguchi_free_runs(runs, count);
     taguchi_free_definition(def);
-    
+
     printf("All experiment runs completed.\\n");
     return 0;
 }"""
